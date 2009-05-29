@@ -3,20 +3,21 @@ layout: default
 title: Getting Started
 ---
 
-Singleshot is developed against Rails 2.3.  Make sure to have Rails 2.3 installed:
+Singleshot is developed against Rails 2.3.2.  Make sure to have Rails 2.3.2 installed:
 
 <pre>
 $ gem update --system
-$ gem install rails
+$ gem install rails -v 2.3.2
 </pre>
 
-To get the latest copy use one of the following:
+To get the latest copy:
 
 <pre>
 $ git clone git://github.com/intalio/singleshot.git
 </pre>
 
-You will need MySQL. The file @config/databases.yml@ contains the connection configurations for the development, test and production environment. You can either setup MySQL accounts and databases based on this file, or change it to pick different database/account.
+You will need MySQL. The file @config/databases.yml@ contains the connection configurations for the development, test and production environment. You can either setup MySQL databases to match this configuration, or change it to suit your database setup. Remember that we're using three different databases for development, testing and production -- if in doubt, you're probably running against the production database. Also, you need to give Singleshot sufficient priviledges to load a new database schema.
+
 
 To setup you development environment, specifically installing all the necessary dependencies and setting up the development and test databases, run the script @script/setup@:
 
@@ -32,3 +33,18 @@ To get started:
 
 Point your browser to "http://localhost:3000":http://localhost:3000 and login with your user name and password.
 
+If you're using "Phusion Passenger":http://www.modrails.com/ you can setup an Apache virtual host like this:
+
+<pre>
+<VirtualHost *:80>
+  ServerName singleshot.local
+  DocumentRoot "/Users/assaf/work/singleshot/public"
+  RailsEnv development
+  <directory "/Users/assaf/work/singleshot/public">
+    Order allow,deny
+    Allow from all
+  </directory>
+</VirtualHost>
+</pre>
+
+Then just add "singleshot.local":http://singleshot.local to your @/etc/hosts@ and you can use this handy URL.
