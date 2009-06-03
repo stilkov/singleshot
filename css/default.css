@@ -95,6 +95,9 @@ th, thead td {
   margin: 0;
   padding: 0;
 }
+#header .title img {
+  vertical-align: middle;
+}
 
 
 #sidebar {
