@@ -1,0 +1,188 @@
+---
+layout: default
+title: WebAPI
+---
+
+h2(#tasks). Tasks
+
+Tasks are what Singleshot is about.
+
+!images/screen-tasks.png!
+
+To create a new task, send a POST request to @/tasks@ with the following attributes:
+
+* *title* -- The task title.
+* *description* -- More detailed task description (simple format)
+* *priority* -- From 1 (highest) to 3 (lowest), with the default 2.
+* *due_on* -- Deadline for completing the task (date/time).
+* *start_on* -- Deadline for starting work on the task (date/time).
+* *creator* -- The account responsible for creating the task (defaults to authenticated account).
+* *potential_owners* -- List of accounts that can perform this task.
+* *excluded_owners* -- List of accounts that cannot perform this task (not allowed as owners).
+* *owner* -- Account currently performing the task, or if completed, who completed it.
+* *past_owners* -- List of accounts that acted as task owner.
+* *supervisors* -- List of accounts that can modify, suspend/resume and cancel this task.
+* *observers* -- List of accounts that can view progress on this task.
+* *form* -- Form used to render the task.
+* *webhooks* -- Use these to invoke actions when the task completes.
+* *data* -- Initial data present to the task (key/value pairs).
+* *status* -- The task status.
+* *links* -- Links related to this task.
+* *actions* -- Actions related to this task.
+
+The task title is required, and at least one potential owner that can perform the task. If there's only one potential owner, they become owner of the task. The account that created the task also becomes supervisor of the task (and can change, suspend or assign it). All other attributes are optional.
+
+Status is one of:
+
+* *available* -- The task is available, potential owners can claim it, supervisors can delegate it.
+* *active* -- The task owner is performing it, and unless they delegate or release it, no one else can claim the task.
+* *suspended* -- No work can be done while the task is suspended.
+* *completed* -- The task was completed by its owner.
+* *cancelled* -- The task was cancelled before completion.
+
+The task can be presented using a form rendered by Singleshot, or by a separate service. In the first case, use the @form.html@ attribute to specify the form contents, input controls and other elements that will wrapped inside an HTML @form@. In the second case, use the @form.url@ attribute to specify the location of a form.
+
+The task can trigger other activities upon completion, cancellation or other lifecycle events. You can either poll to detect these changes, or register one or more Web hooks.
+
+
+h2(#templates). Templates
+
+You can start new tasks based on a template. The template defines the basis for the task (title, description, etc), provides a form for performing the task, and can use webhooks to start other activities (e.g. kick off a workflow) when completed.
+
+!images/screen-template.png!
+
+To create a new template, send a POST request to @/templates@ with the following attributes:
+
+* *title* -- Task title
+* *description* -- More detailed task description (simple format)
+* *priority* -- From 1 (highest) to 3 (lowest), with the default 2.
+* *potential_owners* -- List of accounts that can start this task.
+* *supervisors* -- List of accounts that can modify this template.
+* *form* -- Form used to render the task.
+* *webhooks* -- Use these to invoke actions when the task completes.
+* *data* -- Initial data present to the task (key/value pairs).
+* *status* -- One of “enabled” (default) or “disabled”.
+
+For example:
+
+<pre>
+{ template: {
+  title:       "Request leave of absence",
+  description: "Use this to schedule your vacation or report sick days ",
+  potential_owners: [ "john.smith", "mary.anne", "bob.donner" ],
+  form: {
+    html:      "..."
+  },
+  webhooks: [ {
+    event:     "completed",
+    url:       "http://.../absencerequest/flow",
+    enctype:   "application/json"
+  } ]
+} }
+</pre>
+
+
+h2(#notifications). Notifications
+
+Each account has an inbox that you can send notifications to. Notifications are delivered to the inbox tab, sent by e-mail, Web free or other mechanisms.
+
+!images/screen-notifications.png!
+
+To create a new notification, send a POST request to @/notifications@ with the following attributes:
+
+* *subject* -- The notification subject (text).
+* *body* -- The notification body (simple format).
+* *recipients* -- List of accounts that will receive the notification.
+* *priority* -- From 1 (highest) to 3 (lowest), with the default 2.
+
+Body and priority are optional, subject is required and at least one recipient.
+
+For example:
+
+<pre>
+{ notification: {
+  subject: "Scheduled maintenance 4pm-6pm",
+  body:     "Service will be down today (May 25th) from 4pm-6pm.",
+  priority: 1,
+  recipients: [ "john.smith", "mary.anne", "bob.donner" ]
+} }
+</pre>
+
+
+h2(#notes). Notes
+
+h3. Links
+
+Links let you find related resources. A link consists of the following attributes:
+
+* *href* -- URL of the referenced resource.
+* *rel* -- Relation between this resource and the referenced resource.
+* *type* -- Content type of the referenced resource.
+* *title* -- Describes this link.
+
+For example, a JSON representation of the task can include a link to the XML representation:
+
+<pre>
+{ href: "http://example.com/tasks/56",
+  rel:  "self",
+  type: "application/xml" }
+</pre>
+
+Note: you may find multiple links with the same relation but different content types.
+
+
+h3. Actions
+
+Actions tell you how to perform various actions on related resource. An action consists of the following attributes:
+
+* *name* -- Identifies the action.
+* *url* -- URL of the resource.
+* *method* -- HTTP method to use (default is POST).
+* *enctype* -- Encoding type to use for entity body.
+* *title* -- Describes this action.
+
+For example, action to cancel the current task may read:
+
+<pre>
+{ name:   "cancel",
+  url:    "http://example.com/tasks/56?task[status]=cancelled",
+  method: "POST" }
+</pre>
+
+Note: you may find multiple actions with the same name but different content types.
+
+
+h3. Webhooks
+
+A Webhook consists of the following attributes:
+
+* *event* -- The event this Webhook responds to.
+* *url* -- The URL to trigger.
+* *method* -- The HTTP method to use (not supported in this release).
+* *enctype* -- The encoding type for the entity body.
+* *hmac_key* -- HMAC key for signing the request (not supported in this release).
+
+Supported encoding types are @application/json@ (send task as JSON object), @application/xml@ (send task as XML element) and @application/x-www-form-urlencoded@ (send task identifier and URL using @id@ and @url@ parameters).
+
+For example:
+
+<pre>
+webhooks: [
+  { event:    "completed",
+    url:      "http://example.com/myservice/process/56/mytask",
+    enctype:  "application/json" },
+  { event:    "cancelled",
+    url:      "http://example.com/myservice/process/56/mytask",
+    enctype:  "application/json" }
+]
+</pre>
+
+
+h3. Simple format
+
+The task description, template description and notification body support simple formatting transformation: two newlines are interpreted as paragraph separators and URLs are automatically turned into links. Richer formatting (e.g. full use of HTML) will be explored for later releases.
+
+
+h3. Stakeholder identifiers
+
+TBD
