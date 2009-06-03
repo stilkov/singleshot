@@ -90,13 +90,15 @@ th, thead td {
 }
 #header .title {
   color: #444;
-  font-size: 2em;
+  font-size: 36px;
   font-weight: bold;
   margin: 0;
   padding: 0;
 }
 #header .title img {
-  vertical-align: middle;
+  height: 32px;
+  vertical-align: -2px;
+  margin-right: 0.2em;
 }
 
 
