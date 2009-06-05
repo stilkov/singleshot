@@ -3,7 +3,6 @@ log/*.log
 tmp/
 .DS_Store
 secret.key
-vendor
 doc/app
 failed
 db/development_structure.sql
