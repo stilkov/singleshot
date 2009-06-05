@@ -35,4 +35,35 @@ class BasePresenter < Presenter::Base # Shared by Task and Template.
     object.update_attributes! attrs
   end
 
+  module StringArrayToXML
+    def to_xml(options)
+      xml = options[:builder]
+      xml.tag! options[:root] do
+        singular = options[:root].singularize
+        each do |item|
+          xml.tag! singular, item.to_s
+        end
+      end
+    end
+  end
+
+  def to_hash
+    super do |hash|
+      object.singular_roles.each do |role|
+        if person = object.send(role)
+          hash[role] = person.to_param
+        end
+      end
+      object.plural_roles.each do |role|
+        role = role.pluralize
+        if people = object.send(role)
+          hash[role] = people.map(&:to_param).extend(StringArrayToXML)
+        end
+      end
+      hash['links'] = [ link_to('self', href) ]
+      hash['actions'] = []
+      yield hash if block_given?
+    end
+  end
+
 end
