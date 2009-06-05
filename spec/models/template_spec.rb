@@ -80,7 +80,8 @@ describe Template do
     it('should clone webhooks')                         { subject.webhooks.map(&:url).should == ['http://example.com/completed']
                                                           subject.webhooks.map(&:url).should == @template.webhooks.map(&:url)
                                                           subject.webhooks.first.should_not be(@template.webhooks.first) }
-                                                          
+    it('should clone stakeholders')                     { subject.supervisors.should == [Person.supervisor]
+                                                          subject.supervisors.should == @template.supervisors }
   end
 
   describe 'newly created' do
