@@ -33,40 +33,36 @@ require 'openssl'
 #
 #
 # == Schema Information
-# Schema version: 20090206215123
 #
 # Table name: people
 #
-#  id         :integer         not null, primary key
-#  identity   :string(255)     not null
-#  fullname   :string(255)     not null
-#  email      :string(255)     not null
-#  locale     :string(5)
-#  timezone   :integer(4)
-#  password   :string(64)
-#  access_key :string(32)      not null
-#  created_at :datetime
-#  updated_at :datetime
+#  id                  :integer(4)      not null, primary key
+#  fullname            :string(255)     not null
+#  email               :string(255)     not null
+#  locale              :string(5)
+#  timezone            :integer(4)
+#  created_at          :datetime
+#  updated_at          :datetime
+#  login               :string(255)     not null
+#  crypted_password    :string(255)     not null
+#  password_salt       :string(255)     not null
+#  persistence_token   :string(255)     not null
+#  single_access_token :string(255)     not null
+#  perishable_token    :string(255)     not null
 #
 class Person < ActiveRecord::Base
 
   class << self
 
-    # Resolves a person based on their identity.  For convenience, when called with a Person object,
+    # Resolves a person based on their login.  For convenience, when called with a Person object,
     # returns that same object. You can also call this method with an array of identities, and
-    # it will return an array of people.  Matches against the identity returned in to_param.
-    def identify(identity)
-      case identity
-      when Person then identity
-      when Array then Person.all(:conditions=>{:identity=>identity.flatten.map(&:to_param).uniq})
-      else Person.find_by_identity(identity.to_param) or raise ActiveRecord::RecordNotFound
+    # it will return an array of people.  Matches against the login returned in to_param.
+    def identify(login)
+      case login
+      when Person then login
+      when Array then Person.all(:conditions=>{:login=>login.flatten.map(&:to_param).uniq})
+      else Person.find_by_login(login.to_param) or raise ActiveRecord::RecordNotFound
       end
-    end
-
-    # Used for identity/password authentication.  Return the person if authenticated.
-    def authenticate(identity, password)
-      person = Person.find_by_identity(identity)
-      person if person && person.authenticated?(password)
     end
 
   end
@@ -81,23 +77,20 @@ class Person < ActiveRecord::Base
   end
 
 
-  attr_accessible :identity, :fullname, :email, :locale, :timezone, :password
+  attr_accessible :login, :fullname, :email, :locale, :timezone, :password, :password_confirmation
 
   # Returns an identifier suitable for use with Person.resolve.
   def to_param
-    identity
+    login
   end
 
   def same_as?(person)
     person == (person.is_a?(Person) ? self : to_param)
   end
 
-  # Must have identity.
-  validates_presence_of :identity
-  validates_uniqueness_of :identity, :case_sensitive=>false#, :message=>"A person with this identity already exists."
-  def username
-    identity
-  end
+  # Must have login.
+  validates_presence_of :login
+  validates_uniqueness_of :login, :case_sensitive=>false#, :message=>"A person with this login already exists."
 
   # Must have e-mail address.
   validates_email         :email, :message=>"I need a valid e-mail address."
@@ -105,47 +98,20 @@ class Person < ActiveRecord::Base
 
   before_validation do |record|
     record.email = record.email.to_s.strip.downcase
-    record.identity = record.email.to_s.strip[/([^\s@]*)/, 1].downcase if record.identity.blank?
-    record.identity = record.identity.strip.gsub(/\s+/, '_').downcase
+    record.login = record.email.to_s.strip[/([^\s@]*)/, 1].downcase if record.login.blank?
+    record.login = record.login.strip.gsub(/\s+/, '_').downcase
     record.fullname = record.email.to_s.strip[/([^\s@]*)/, 1].split(/[_.]+/).map(&:capitalize).join(' ') if record.fullname.blank?
     record.fullname = record.fullname.strip.gsub(/\s+/, ' ')
   end
 
   def url
-    read_attribute(:identity)
+    read_attribute(:login)
   end
 
-  # Sets a new password.
-  def password=(value)
-    return super if value.nil?
-    salt = ActiveSupport::SecureRandom.hex(5)
-    crypt = OpenSSL::HMAC.hexdigest(OpenSSL::Digest::SHA1.new, salt, value)
-    super "#{salt}::#{crypt}"
+  acts_as_authentic do |config|
+    # Configuration comes here.
   end
-
-  # Authenticate against the supplied password.
-  def authenticated?(against)
-    return false unless password
-    salt, crypt = password.split('::')
-    crypt == OpenSSL::HMAC.hexdigest(OpenSSL::Digest::SHA1.new, salt, against)
-  end
-
-  # Sets a new password for this person and returns the password in clear text.
-  def new_password!
-    self.password = Array.new(10) { (65 + rand(58)).chr }.join
-  end
-
-  # Sets a new access key for this person. Access key is read-only and this is the only way
-  # to change it, for example, if the previous access key has been compromised. Returns the
-  # new access key.
-  def new_access_key!
-    self.access_key = ActiveSupport::SecureRandom.hex(16)
-  end
-
-  before_save do |record| 
-    record.new_access_key! unless record.access_key
-  end
-
+  
 
   # -- Tasks/Templates/Notifications/Activity --
 

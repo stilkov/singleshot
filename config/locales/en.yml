@@ -29,10 +29,10 @@ en:
     errors:
       nomatch:  "No account with this user name and password."
     show:
-      login:
+      submit:
         button:   "Login"
         hint:     ""
-      username:
+      login:
         label:    "Username:"
         hint:     "Your username"
       password:

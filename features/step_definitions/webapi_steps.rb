@@ -15,7 +15,7 @@
 
 
 Given /^I am authenticated$/ do
-  Given "I am authenticated as me"
+  Given "I am authenticated as john"
 end
 
 Given /^I am authenticated as (.*)$/ do |person|

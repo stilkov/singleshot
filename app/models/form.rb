@@ -1,14 +1,3 @@
-# == Schema Information
-# Schema version: 20090421005807
-#
-# Table name: forms
-#
-#  id      :integer(4)      not null, primary key
-#  task_id :integer(4)      not null
-#  url     :string(255)
-#  html    :text
-#
-
 # Singleshot  Copyright (C) 2008-2009  Intalio, Inc
 #
 # This program is free software: you can redistribute it and/or modify

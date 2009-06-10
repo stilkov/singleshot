@@ -25,8 +25,9 @@ Rails::Initializer.run do |config|
   else
     config.gem 'mysql', :version=>'~>2.7', :lib=>false
   end
-  config.gem 'mislav-will_paginate',  :version=>'2.3.11', :lib=>'will_paginate'
-  config.gem 'liquid',                :version=>'2.0'
+  config.gem 'mislav-will_paginate',  :version=>'~>2.3', :lib=>'will_paginate'
+  config.gem 'liquid',                :version=>'~>2.0'
+  config.gem 'authlogic',             :version=>'~>2.0'
 
   # Only load the plugins named here, in the order given (default is alphabetical).
   # :all can be used as a placeholder for all plugins not explicitly named

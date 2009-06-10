@@ -155,8 +155,10 @@ describe TasksController do
 
   should_route :get, '/tasks/1', :controller=>'tasks', :action=>'show', :id=>'1'
   describe :get=>'show', :id=>89 do
-    before { @task = Task.make(:id=>89, :title=>'TPS Report') }
-    before { authenticate Person.owner }
+    before do
+      @task = Task.make(:id=>89, :title=>'TPS Report')
+      authenticate Person.owner
+    end
 
     share_examples_for 'task.show' do
       should_assign_to(:instance) { @task }
@@ -220,8 +222,10 @@ describe TasksController do
 
   should_route :put, '/tasks/1', :controller=>'tasks', :action=>'update', :id=>'1'
   describe :put=>'update', :id=>89 do
-    before { @task = Task.make(:id=>89, :title=>'TPS Report') }
-    before { authenticate Person.supervisor }
+    before do
+      @task = Task.make(:id=>89, :title=>'TPS Report')
+      authenticate Person.supervisor
+    end
     params 'task'=>{ 'priority'=>1 }
 
     share_examples_for 'task.update' do

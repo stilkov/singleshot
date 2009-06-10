@@ -20,6 +20,7 @@ require 'machinist/active_record'
 Person.blueprint do
   email    { 'john.smith@example.com' }
   password { 'secret' }
+  password_confirmation { password }
 end
 
 class Person #:nodoc:
@@ -30,7 +31,7 @@ class Person #:nodoc:
     #   Person.named('alice', 'bob')
     def named(*args)
       return args.map { |arg| Person.named(arg) } if args.size > 1
-      Person.identify(args.first) rescue Person.make(:email=>"#{args.first}@example.com")
+      Person.find_by_login(args.first) || Person.make(:email=>"#{args.first}@example.com")
     end
 
 

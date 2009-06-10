@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090508224047) do
+ActiveRecord::Schema.define(:version => 20090610000126) do
 
   create_table "activities", :force => true do |t|
     t.integer  "person_id",  :null => false
@@ -45,21 +45,22 @@ ActiveRecord::Schema.define(:version => 20090508224047) do
   end
 
   create_table "people", :force => true do |t|
-    t.string   "identity",                 :null => false
-    t.string   "fullname",                 :null => false
-    t.string   "email",                    :null => false
-    t.string   "locale",     :limit => 5
+    t.string   "fullname",                         :null => false
+    t.string   "email",                            :null => false
+    t.string   "locale",              :limit => 5
     t.integer  "timezone"
-    t.string   "password",   :limit => 64
-    t.string   "access_key", :limit => 32, :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "login",                            :null => false
+    t.string   "crypted_password",                 :null => false
+    t.string   "password_salt",                    :null => false
+    t.string   "persistence_token",                :null => false
+    t.string   "single_access_token",              :null => false
+    t.string   "perishable_token",                 :null => false
   end
 
-  add_index "people", ["access_key"], :name => "index_people_on_access_key", :unique => true
   add_index "people", ["email"], :name => "index_people_on_email", :unique => true
   add_index "people", ["fullname"], :name => "index_people_on_fullname"
-  add_index "people", ["identity"], :name => "index_people_on_identity", :unique => true
 
   create_table "stakeholders", :force => true do |t|
     t.integer  "person_id",  :null => false

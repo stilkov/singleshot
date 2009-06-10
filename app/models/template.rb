@@ -14,6 +14,27 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+# == Schema Information
+#
+# Table name: tasks
+#
+#  id           :integer(4)      not null, primary key
+#  status       :string(255)     not null
+#  title        :string(255)     not null
+#  description  :string(255)
+#  language     :string(5)
+#  priority     :integer(1)      not null
+#  due_on       :date
+#  start_on     :date
+#  cancellation :string(255)
+#  data         :text            default(""), not null
+#  hooks        :string(255)
+#  access_key   :string(32)
+#  version      :integer(4)
+#  created_at   :datetime
+#  updated_at   :datetime
+#  type         :string(255)     not null
+#
 class Template < Base
 
   def initialize(*args, &block)

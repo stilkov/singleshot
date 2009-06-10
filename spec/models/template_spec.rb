@@ -19,7 +19,6 @@ require File.dirname(__FILE__) + '/base_spec'
 
 
 # == Schema Information
-# Schema version: 20090421005807
 #
 # Table name: tasks
 #
@@ -34,8 +33,8 @@ require File.dirname(__FILE__) + '/base_spec'
 #  cancellation :string(255)
 #  data         :text            default(""), not null
 #  hooks        :string(255)
-#  access_key   :string(32)      not null
-#  version      :integer(4)      not null
+#  access_key   :string(32)
+#  version      :integer(4)
 #  created_at   :datetime
 #  updated_at   :datetime
 #  type         :string(255)     not null

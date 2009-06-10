@@ -18,7 +18,7 @@ require File.dirname(__FILE__) + '/helpers'
 
 
 class AuthenticationTestController < ApplicationController
-  self.allow_forgery_protection    = true
+  self.allow_forgery_protection = true
 
   def index
     render :nothing=>true
@@ -30,12 +30,12 @@ class AuthenticationTestController < ApplicationController
 end
 
 describe AuthenticationTestController do
-  before { @person = Person.make(:email=>'me@example.com', :locale=>'tlh', :timezone=>-11) }
+  before { @person = Person.make(:email=>'john@example.com', :locale=>'tlh', :timezone=>-11) }
 
   describe 'unauthenticated request' do
     describe '(HTML)' do
       before { get :index }
-      should_redirect_to { session_path }
+      should_redirect_to                          { session_path }
       it('should store return URL in session')    { session[:return_url].should == request.url }
       it('should reset I18n locale')              { I18n.locale.should == :en }
       it('should reset TimeZone')                 { Time.zone.utc_offset == 0 }
@@ -64,7 +64,10 @@ describe AuthenticationTestController do
     end
 
     describe '(authenticated)' do
-      before { get :index, nil, :authenticated=>@person.id }
+      before do
+        authenticate @person
+        get :index
+      end
       should_respond_with 200
       should_authenticate_account
       it('should set I18n.locale')                  { I18n.locale.should == :tlh }
@@ -72,78 +75,93 @@ describe AuthenticationTestController do
     end
   end
 
-  describe 'HTTP Basic authentication' do
 
+  describe 'HTTP Basic authentication' do
     describe '(with credentials)' do
       before do
-        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@person.username, 'secret')
+        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@person.login, 'secret')
         get :index
       end
 
       should_respond_with 200
       should_authenticate_account
+      it('should set I18n.locale')                  { I18n.locale.should == :tlh }
+      it('should set Time.zone')                    { Time.zone.should == ActiveSupport::TimeZone[-11] }
     end
 
     describe '(with invalid credentials)' do
       before do
-        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@person.username, 'wrong')
+        @request.env['HTTP_ACCEPT'] = Mime::XML.to_s
+        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@person.login, 'wrong')
         get :index
       end
 
       should_respond_with 401
     end
-
-    describe '(POST)' do
-      before do
-ActionController::Base.allow_forgery_protection    = true
-        request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@person.username, 'secret')
-        request.env['CONTENT_TYPE'] = Mime::URL_ENCODED_FORM.to_s
-        post :update, :format=>:html
-      end
-    end
   end
+  
 
   describe 'access key authentication' do
     before { rescue_action_in_public! }
 
     describe '(Atom)' do
-      before { get :feed, :access_key=>@person.access_key, :format=>:atom }
+      before do
+        @request.env['HTTP_ACCEPT'] = Mime::ATOM.to_s
+        get :feed, :access_key=>@person.single_access_token
+      end
       should_respond_with 200
       should_authenticate_account
     end
 
-    describe '(iCal)' do
-      before { get :feed, :access_key=>@person.access_key, :format=>:ics }
+    describe '(ICS)' do
+      before do
+        @request.env['HTTP_ACCEPT'] = Mime::ICS.to_s
+        get :feed, :access_key=>@person.single_access_token
+      end
       should_respond_with 200
       should_authenticate_account
     end
 
     describe '(HTML)' do
-      before { get :feed, :access_key=>@person.access_key, :format=>:html }
+      before do
+        @request.env['HTTP_ACCEPT'] = Mime::HTML.to_s
+        get :feed, :access_key=>@person.single_access_token
+      end
       should_redirect_to { session_path }
     end
 
-    describe '(POST)' do
-      before { post :feed, :access_key=>'wrong', :format=>:atom }
-      should_respond_with 405
-    end
-
     describe '(invalid access key)' do
-      before { get :feed, :access_key=>'wrong', :format=>:atom }
-      should_respond_with 403
+      before do
+        @request.env['HTTP_ACCEPT'] = Mime::ATOM.to_s
+        get :feed, :access_key=>'wrong'
+      end
+      should_respond_with 401
     end
   end
 
+
   describe 'forgery protection' do
-    before { rescue_action_in_public! }
-    before { request.env['CONTENT_TYPE'] = Mime::URL_ENCODED_FORM.to_s }
-    it 'should apply when using session authentication' do
-      post :index, nil, :authenticated=>@person.id
+    before do
+      rescue_action_in_public!
+    end
+
+    it 'should apply when accessing from browser' do
+      request.env['CONTENT_TYPE'] = Mime::URL_ENCODED_FORM.to_s
+      post :index, {}, :authenticated=>@person
       should respond_with(422)
     end
-    it 'should not apply when using HTTP Basic authentication' do
-      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@person.username, 'secret')
-      post :index
+
+    it 'should not apply when using XML' do
+      request.env['CONTENT_TYPE'] = Mime::XML
+      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@person.login, 'secret')
+      post :index, {}
+      should respond_with(200)
+    end
+
+    it 'should not apply when using JSON' do
+      request.env['CONTENT_TYPE'] = Mime::JSON
+      request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Basic.encode_credentials(@person.login, 'secret')
+      post :index, {}
       should respond_with(200)
     end
   end
@@ -154,5 +172,4 @@ ActionController::Base.allow_forgery_protection    = true
       controller.send(:authenticated) == @person
     end
   end
-
 end

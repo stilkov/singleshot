@@ -2,12 +2,12 @@ Features: Using forms to peform the task
 
   Background:
     Given the person scott
-    And the person me
+    And the person john
     And the task
       """
       title: "Absence request"
       creator: scott
-      owner: me
+      owner: john
       form:
         html: "{{ creator.fullname }} requested leave of absence.
                <label><input type='radio' name='data[accept]' value='true'> Accept</label>

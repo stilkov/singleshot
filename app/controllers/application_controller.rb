@@ -1,4 +1,4 @@
-# Singleshot  Copyright (C) 2008-2009  Intalio, Inc
+# Singleshot  Copyright (C) 2009-2009  Intalio, Inc
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -18,61 +18,50 @@ class ApplicationController < ActionController::Base #:nodoc:
 
   helper :all # include all helpers, all the time
 
-protected
+  helper_method :current_session, :authenticated
+
+  class UserSession <  Authlogic::Session::Base
+    authenticate_with Person
+    params_key :access_key
+    single_access_allowed_request_types [Mime::ATOM, Mime::ICS]
+  end
+
+private
 
   # --- Authentication/Security ---
 
   # See ActionController::Base for details 
   # Uncomment this to filter the contents of submitted sensitive data parameters
   # from your application log (in this case, all fields with names like "password"). 
-  filter_parameter_logging :password
-
-  # All requests authenticated unless said otherwise. This filter must run before CSRF protection.
-  prepend_before_filter :authenticate
+  filter_parameter_logging :password, :password_confirmation
 
   # See ActionController::RequestForgeryProtection for details
   protect_from_forgery
 
+  def current_session
+    return @current_session if defined?(@current_session)
+    @current_session = UserSession.find
+  end
+
   # Returns currently authenticated user.
-  attr_reader :authenticated
-  
+  def authenticated
+    return @authenticated if defined?(@authenticated)
+    @authenticated = current_session && current_session.person
+  end
+
+  before_filter :authenticate
   # Authentication filter enabled by default since most resources are guarded.
   def authenticate
-    # Good luck using HTTP Basic/sessions with feed readers and calendar apps.
-    # Instead we use a query parameter tacked to the URL to authenticate, and
-    # given the lax security, only for these resources and only for GET requests.
-    if params[:access_key] && (request.format.atom? || request.format.ics?)
-      raise ActionController::MethodNotAllowed, 'GET' unless request.get?
-      reset_session # don't send back cookies
-      @authenticated = Person.find_by_access_key(params[:access_key])
-      head :forbidden unless @authenticated
+    # TODO: HTTP Basic might need this
+    # params[request_forgery_protection_token] = form_authenticity_token
+    if authenticated
+      I18n.locale = authenticated.locale.to_sym if authenticated.locale
+      Time.zone = authenticated.timezone
+    elsif request.format.html?
+      session[:return_url] = request.url
+      redirect_to session_url
     else
-      # Favoring HTTP Basic over sessions makes my debugging life easier.
-      if ActionController::HttpAuthentication::Basic.authorization(request)
-        authenticate_or_request_with_http_basic(request.host) do |login, password|
-          @authenticated = Person.authenticate(login, password)
-        end
-        reset_session
-        params[request_forgery_protection_token] = form_authenticity_token
-      else
-        @authenticated = Person.find(session[:authenticated]) rescue nil
-        unless @authenticated
-          # Browsers respond favorably to this test, so we use it to detect browsers
-          # and redirect the use to a login page.  Otherwise we assume dumb machine and
-          # insist on HTTP Basic.
-          if request.format.html?
-            session[:return_url] = request.url
-            redirect_to session_url
-          else
-            reset_session
-            request_http_basic_authentication
-          end
-        end
-      end
-    end
-    if @authenticated
-      I18n.locale = @authenticated.locale.to_sym if @authenticated.locale
-      Time.zone = @authenticated.timezone
+      request_http_basic_authentication
     end
   end
 

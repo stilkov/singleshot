@@ -15,14 +15,14 @@
 
 
 Before do
-  Person.create! :email=>'me@example.com', :password=>'secret'
+  Person.create! :email=>'john@example.com', :password=>'secret', :password_confirmation=>'secret'
 end
  
 Given /^the person (.*)$/ do |name|
-  Person.identify(name) rescue Person.create!(:email=>"#{name}@example.com", :password=>'secret')
+  Person.identify(name) rescue Person.create!(:email=>"#{name}@example.com", :password=>'secret', :password_confirmation=>'secret')
 end
 
 When /^I login/ do
-  Given "the person me"
-  basic_auth 'me', 'secret'
+  Given "the person john"
+  basic_auth 'john', 'secret'
 end

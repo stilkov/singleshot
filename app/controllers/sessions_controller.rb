@@ -22,20 +22,19 @@ class SessionsController < ApplicationController #:nodoc:
   end
 
   def create
-    username, password = params.values_at(:username, :password)
-    if person = Person.authenticate(username, password)
-      redirect = session[:return_url] || root_url
-      reset_session # prevent session fixation
-      session[:authenticated] = person.id
+    user_session = UserSession.new(params)
+    if user_session.save
+      redirect = session.delete(:return_url) || root_url
       redirect_to redirect, :status=>:see_other 
     else
-      flash[:error] = t('sessions.errors.nomatch')  unless username.blank?
+      flash[:error] = t('sessions.errors.nomatch') unless params[:login].blank?
       redirect_to session_url, :status=>:see_other
     end
   end
 
   def destroy
-    reset_session
+    @authenticated = nil
+    current_session.destroy
     redirect_to root_url, :status=>:see_other
   end
 

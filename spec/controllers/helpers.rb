@@ -29,16 +29,22 @@ module Spec::Helpers #:nodoc:
     #   end
     #
     # Without arguments, authenticates as 'person'.
-    def authenticate(person = Person.named('me'))
-      previous, session[:authenticated] = session[:authenticated], person && person.id
-      if block_given?
-        begin
-          yield
-        ensure
-          session[:authenticated] = previous
+    def authenticate(person = Person.named('john'))
+      @controller.instance_eval do
+        previous, @authenticated = @authenticated, person
+        if block_given?
+          begin
+            yield
+          ensure
+            @authenticated = previous
+          end
         end
       end
       self
+    end
+
+    def authenticated
+      @controller && @controller.send(:authenticated)
     end
 
     def session_for(person)

@@ -23,8 +23,8 @@ describe NotificationsController do
 
   should_route :get, '/notifications', :controller=>'notifications', :action=>'index'
   describe :get=>'index' do
-    before { authenticate Person.observer }
     before do
+      authenticate Person.observer
       2.times { Notification.make :recipients=>[Person.other] }
       @notifications = Array.new(3) { Notification.make }
     end
@@ -134,8 +134,10 @@ describe NotificationsController do
 
   should_route :get, '/notifications/93', :controller=>'notifications', :action=>'show', :id=>93
   describe :get=>'show' do
-    before { Notification.make :id=>93, :recipients=>[Person.observer] }
-    before { authenticate Person.observer }
+    before do
+      Notification.make :id=>93, :recipients=>[Person.observer]
+      authenticate Person.observer
+    end
     params 'id'=>93
 
     share_examples_for 'notification.show' do
@@ -186,9 +188,11 @@ describe NotificationsController do
 
   should_route :put, '/notifications/93', :controller=>'notifications', :action=>'update', :id=>93
   describe :put=>'update' do
-    before { Notification.make :id=>91 ; Notification.make :id=>92 }
-    before { Notification.make :id=>93, :recipients=>[Person.observer] }
-    before { authenticate Person.observer }
+    before do
+      Notification.make :id=>91 ; Notification.make :id=>92
+      Notification.make :id=>93, :recipients=>[Person.observer]
+      authenticate Person.observer
+    end
     params 'id'=>93, 'read'=>'true'
 
     describe '(marked read)' do

@@ -7,7 +7,7 @@ Features: Sending notification
     Given the notification
     """
     subject: "Mark your calendar"
-    recipients: me
+    recipients: john
     """
     When I go to the homepage
     Then I should see "Inbox 1"
@@ -17,7 +17,7 @@ Features: Sending notification
     """
     subject: "Mark your calendar"
     body:    "Cool event coming up"
-    recipients: me
+    recipients: john
     """
     When I go to the inbox
     Then I should see "Inbox 1"
@@ -29,7 +29,7 @@ Features: Sending notification
     """
     subject: "Mark your calendar"
     body:    "Cool event coming up"
-    recipients: me
+    recipients: john
     """
     When I go to the inbox
     And I follow "Mark your calendar"
@@ -42,13 +42,13 @@ Features: Sending notification
     """
     subject: "Mark your calendar"
     body:    "Cool event coming up"
-    recipients: me
+    recipients: john
     """
     Then I should receive the email
     """
     From:     notifications@example.com
     Reply-To: noreply@example.com
-    To:       me@example.com
+    To:       john@example.com
     Subject: "Mark your calendar"
     Body:    "Cool event coming up"
     """
@@ -59,7 +59,7 @@ Features: Sending notification
       { notification: {
         subject:    "Mark your calendar",
         body:       "Cool event coming up",
-        recipients: [ 'me' ],
+        recipients: [ 'john' ],
         priority:   1
       } }
       """
@@ -72,7 +72,7 @@ Features: Sending notification
     """
     From:     notifications@example.com
     Reply-To: noreply@example.com
-    To:       me@example.com
+    To:       john@example.com
     Subject: "Mark your calendar"
     Body:    "Cool event coming up"
     """

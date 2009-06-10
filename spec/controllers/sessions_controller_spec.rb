@@ -32,51 +32,55 @@ describe SessionsController do
   end
 
   describe 'POST /session' do
-    before { @person = Person.named('me') }
+    before { Person.me }
 
     describe '(no credentials)' do
       before { post :create }
 
-      should_redirect_to { session_path }
-      it('should have no authenticated user in session')      { session[:authenticated].should be_nil }
+      it('should have no authenticated user in session')      { authenticated.should be_nil }
+      it('should have no error message in flash')             { flash.should be_empty }
+      should_redirect_to                                      { session_path }
     end
 
     describe '(wrong credentials)' do
-      before { post :create, :username=>@person.identity, :password=>'wrong' }
+      before { post :create, :login=>Person.me.login, :password=>'wrong' }
 
-      should_redirect_to { session_path }
-      it('should have no authenticated user in session')      { session[:authenticated].should be_nil }
+      it('should have no authenticated user in session')      { authenticated.should be_nil }
       it('should have error message in flash')                { flash[:error].should match(/no account/i) }
+      should_redirect_to                                      { session_path }
     end
 
     describe '(valid credentials)' do
-      before { session[:older] = true }
-      before { post :create, :username=>@person.identity, :password=>'secret' }
+      before { post :create, :login=>Person.me.login, :password=>'secret' }
 
-      should_redirect_to { root_path }
-      it('should store authenticated user in session')        { session[:authenticated].should == @person.id }
-      it('should reset session to prevent session fixation')  { session[:older].should be_nil } 
+      it('should store authenticated user in session')        { authenticated.should == Person.me }
       it('should clear flash')                                { flash.should be_empty }
+      should_redirect_to                                      { root_path }
     end
 
     describe '(valid credentials and return url)' do
-      before { post :create, { :username=>@person.identity, :password=>'secret' }, { :return_url=>'http://return_url' } }
+      before { post :create, { :login=>Person.me.login, :password=>'secret' }, { :return_url=>'http://return_url' } }
 
-      should_redirect_to { 'http://return_url' }
-      it('should clear return url from session')            { session[:return_url].should be_nil }
-      it('should store authenticated user in session')      { session[:authenticated].should == @person.id }
+      it('should store authenticated user in session')        { authenticated.should == Person.me }
+      it('should clear return url from session')              { session[:return_url].should be_nil }
+      should_redirect_to                                      { 'http://return_url' }
     end
 
   end
 
+
   describe 'DELETE /session' do
     before do
-      authenticate
+      @controller.instance_eval do
+        @current_session = ApplicationController::UserSession.new
+        @current_session.should_receive(:destroy)
+        @authenticated = Person.me
+      end
       delete :destroy
     end
 
-    it('should reset session')        { session.should be_empty }
-    should_redirect_to { root_path }
+    it('should have no authenticated user in session')  { authenticated.should be_nil }
+    should_redirect_to                                  { root_path }
   end
 
 end

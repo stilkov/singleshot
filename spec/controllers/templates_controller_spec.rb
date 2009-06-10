@@ -21,8 +21,10 @@ describe TemplatesController do
 
   should_route :get, '/templates', :controller=>'templates', :action=>'index'
   describe :get=>'index' do
-    before { authenticate Person.owner }
-    before { @templates = Array.new(3) { Template.make } }
+    before do
+      authenticate Person.owner
+      @templates = Array.new(3) { Template.make }
+    end
 
     describe Mime::HTML do
       should_assign_to(:templates) { @templates }
@@ -124,8 +126,10 @@ describe TemplatesController do
 
   should_route :get, '/templates/55', :controller=>'templates', :action=>'show', :id=>55
   describe :get=>'show', :id=>55 do
-    before { @template = Template.make(:id=>55, :title=>'TPS Report') }
-    before { authenticate Person.owner }
+    before do
+      @template = Template.make(:id=>55, :title=>'TPS Report')
+      authenticate Person.owner
+    end
 
     share_examples_for 'template.show' do
       should_assign_to(:instance) { @template }
@@ -164,8 +168,10 @@ describe TemplatesController do
 
   should_route :put, '/templates/56', :controller=>'templates', :action=>'update', :id=>56
   describe :put=>'update' do
-    before { Template.make :id=>56, :title=>'TPS Report' }
-    before { authenticate Person.supervisor }
+    before do
+      Template.make :id=>56, :title=>'TPS Report'
+      authenticate Person.supervisor
+    end
     params :id=>56, :template=>{ :priority=>1 }
 
     share_examples_for 'template.update' do
@@ -218,8 +224,10 @@ describe TemplatesController do
 
   should_route :delete, '/templates/56', :controller=>'templates', :action=>'destroy', :id=>56
   describe :delete=>'destroy' do
-    before { Template.make :id=>56, :title=>'TPS Report' }
-    before { authenticate Person.supervisor }
+    before do
+      Template.make :id=>56, :title=>'TPS Report'
+      authenticate Person.supervisor
+    end
     params :id=>56
 
     share_examples_for 'template.destroy' do

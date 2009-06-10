@@ -5,7 +5,7 @@ Features: Using templates to start new tasks
       """
       title: "Absence request"
       description: "Request leave of absence"
-      potential_owners: me
+      potential_owners: john
       form:
         html: "<input type='text' name='data[date]'>"
       """
@@ -48,7 +48,7 @@ Features: Using templates to start new tasks
     Given the template
       """
       title: "Absence request (w/hook)"
-      potential_owners: me
+      potential_owners: john
       form:
         html: "<input type='text' name='data[date]'>"
       webhooks:

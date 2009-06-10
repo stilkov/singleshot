@@ -26,8 +26,8 @@ describe '/sessions/show' do
     response.should have_tag('form.login') do
       with_tag 'form[method=post][action=?]', session_url do
         with_tag 'fieldset' do
-          with_tag 'label[for=username]', "Username:"
-          with_tag 'input[name=username][type=text][title=Your username]'
+          with_tag 'label[for=login]', "Username:"
+          with_tag 'input[name=login][type=text][title=Your username]'
           with_tag 'label[for=password]', "Password:"
           with_tag 'input[name=password][type=password][title=Your password is case sensitive]'
           with_tag 'input[type=submit][value=Login]'
@@ -36,7 +36,7 @@ describe '/sessions/show' do
     end
   end
 
-  should_have_tag 'form.login input[name=username].auto_focus'
+  should_have_tag 'form.login input[name=login].auto_focus'
   should_have_tag 'form.login input[name=authenticity_token][type=hidden]'
   should_not_have_tag 'p.error'
 end

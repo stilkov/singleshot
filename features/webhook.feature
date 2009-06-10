@@ -4,7 +4,7 @@ Feature: Sending Webhook notifications
     Given the task
       """
       title: "Absence request"
-      owner: me
+      owner: john
       webhooks:
       - event: "completed"
         url:   "http://localhost:1234/hook"
@@ -22,7 +22,7 @@ Feature: Sending Webhook notifications
     Given the task
       """
       title: "Absence request"
-      owner: me
+      owner: john
       webhooks:
       - event: "completed"
         url:   "http://localhost:1234/hook"

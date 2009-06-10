@@ -18,29 +18,31 @@ require File.dirname(__FILE__) + '/helpers'
 
 
 # == Schema Information
-# Schema version: 20090421005807
 #
 # Table name: people
 #
-#  id         :integer(4)      not null, primary key
-#  identity   :string(255)     not null
-#  fullname   :string(255)     not null
-#  email      :string(255)     not null
-#  locale     :string(5)
-#  timezone   :integer(4)
-#  password   :string(64)
-#  access_key :string(32)      not null
-#  created_at :datetime
-#  updated_at :datetime
+#  id                  :integer(4)      not null, primary key
+#  fullname            :string(255)     not null
+#  email               :string(255)     not null
+#  locale              :string(5)
+#  timezone            :integer(4)
+#  created_at          :datetime
+#  updated_at          :datetime
+#  login               :string(255)     not null
+#  crypted_password    :string(255)     not null
+#  password_salt       :string(255)     not null
+#  persistence_token   :string(255)     not null
+#  single_access_token :string(255)     not null
+#  perishable_token    :string(255)     not null
 #
 describe Person do
   subject { Person.make }
 
-  should_have_attribute :identity
-  should_have_column :identity, :type=>:string
-  should_allow_mass_assignment_of :identity
-  should_validate_uniqueness_of :identity, :case_sensitive=>false
-  it ('should set identity from email if unspecified') { subject.valid? ; subject.identity.should == 'john.smith' }
+  should_have_attribute :login
+  should_have_column :login, :type=>:string
+  should_allow_mass_assignment_of :login
+  should_validate_uniqueness_of :login, :case_sensitive=>false
+  it ('should set login from email if unspecified') { subject.valid? ; subject.login.should == 'john.smith' }
 
   should_have_attribute :email
   should_have_column :email, :type=>:string
@@ -64,64 +66,29 @@ describe Person do
   should_allow_mass_assignment_of :locale
   should_not_validate_presence_of :locale
 
-  def salt # return the password's salt
-    subject.password.split('::').first
-  end
-  def crypt # return the password's crypt
-    subject.password.split('::').last
-  end
-  def authenticate(password) # expecting authenticated?(password) to return true
-    simple_matcher("authenticate '#{password}'") { |given| given.authenticated?(password) }
-  end
-
-  should_have_attribute :password
-  should_have_column :password, :type=>:string
-  should_allow_mass_assignment_of :password
-  should_not_validate_presence_of :password
-  it('should store salt as part of password')             { salt.should =~ /^[0-9a-f]{10}$/ }
-  it('should store hexdigest as part of password')        { crypt.should =~ /^[0-9a-f]{40}$/ }
-  it('should use HMAC to crypt password')                 { crypt.should == OpenSSL::HMAC.hexdigest(OpenSSL::Digest::SHA1.new, salt, "secret") }
-  it('should be <= 64 digits in crypt form')              { subject.password.size.should <= 64 }
-  it('should not have same crypt for two people')         { Person.named('alice', 'bob', 'mary').map(&:password).uniq.size.should be(3) }
-  it('should authenticate the right password')            { should authenticate('secret') }
-  it('should not authenticate the wrong password')        { should_not authenticate('wrong') }
-  it('should not authenticate without a password')        { subject[:password] = nil ; should_not authenticate('') }
-
-  should_have_attribute :access_key
-  should_have_column :access_key, :type=>:string, :limit=>32
-  should_not_allow_mass_assignment_of :access_key
-  it('should create secure random access key')            { subject.save ; subject.access_key.should =~ /^[0-9a-f]{32}$/ }
-  it('should give each person unique access key')         { Person.named('alice', 'bob', 'mary').map(&:access_key).uniq.size.should be(3) }
+  should_have_attribute :crypted_password
+  should_have_attribute :password_salt
+  should_have_attribute :persistence_token
+  should_have_attribute :single_access_token
+  should_have_attribute :perishable_token
+  should_allow_mass_assignment_of :password, :password_confirmation
+  should_not_allow_mass_assignment_of :crypted_password, :password_salt, :persistence_token, :single_access_token, :perishable_token
 
   should_have_attribute :created_at
   should_have_column :created_at, :type=>:datetime
   should_have_attribute :updated_at
   should_have_column :updated_at, :type=>:datetime
 
-  describe '.authenticate' do
-    subject { Person.make }
-
-    # Expecting Person.authenticate(identity, password) to return subject
-    def authenticate(identity, password)
-      simple_matcher("authenticate '#{identity}:#{password}'") { |given| Person.authenticate(identity, password) == subject }
-    end
-
-    it('should return person if identity/password match')   { should authenticate('john.smith', 'secret') }
-    it('should not return person unless password matches')  { should_not authenticate('john.smith', 'wrong') }
-    it('should not return person unless identity matches')  { should_not authenticate('john.wrong', 'secret') }
-  end
-
-
   describe '.identify' do
     subject { Person.make }
 
     it('should return same Person as argument')   { should identify(subject) }
-    it('should return person with same identity') { should identify(subject.identity) }
+    it('should return person with same login')    { should identify(subject.login) }
     it('should fail if no person identified')     { should_not identify('missing') }
     
-    # Expecting Person.identify(identity) to return subject
-    def identify(identity)
-      simple_matcher("identify '#{identity}'") { |given, matcher| wrap_expectation(matcher) { Person.identify(identity) == subject } }
+    # Expecting Person.identify(login) to return subject
+    def identify(login)
+      simple_matcher("identify '#{login}'") { |given, matcher| wrap_expectation(matcher) { Person.identify(login) == subject } }
     end
   end
 
