@@ -1,5 +1,5 @@
 <% @title = t('.title') %>
-<% @atom_feed_url = activities_url(:format=>:atom, :access_key=>authenticated.access_key) %>
+<% @atom_feed_url = activities_url(:format=>:atom, :access_key=>authenticated.single_access_token) %>
 <%= bar_sparkline @datapoints.call, :title=>t('.sparkline') %>
 <ol class='dates hfeed'>
   <% for date, activities in @activities.group_by{ |a| a.created_at.to_date } %>
