@@ -48,10 +48,10 @@ class Populate < ActiveRecord::Migration
     puts "Creating an account for:"
     puts "  Username: #{ENV['USER']}"
     puts "  Password: secret"
-    @me = Person.create!(:email=>"#{ENV['USER']}@example.com", :password=>'secret')
+    @me = Person.create!(:email=>"#{ENV['USER']}@example.com", :password=>'secret', :password_confirmation=>'secret')
 
     puts "Populating database for #{@me.to_param}"
-    @bond = Person.create!(:email=>"bond@example.com", :fullname=>"Mr.Bond")
+    @bond = Person.create!(:email=>"bond@example.com", :fullname=>"Mr.Bond", :password=>'secret', :password_confirmation=>'secret')
 
     # Tasks I should not see.
     #Task.make 
