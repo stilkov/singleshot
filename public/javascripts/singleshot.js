@@ -81,6 +81,9 @@ $(function() {
       return false;
     });
 
+
+  setTimeout(function() { $('#header div.error, #header div.success, #header div.notice').slideUp(500) }, 5000);
+
 })
 
 

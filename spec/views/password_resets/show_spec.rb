@@ -16,44 +16,40 @@
 
 require File.dirname(__FILE__) + '/../helpers'
 
-describe '/sessions/show' do
+describe '/password_resets/show' do
   before do
     controller.allow_forgery_protection = true
-    Authlogic::Session::Base.controller = Authlogic::TestCase::MockController.new
-    assigns[:auth_session] = AuthSession.new
-    render '/sessions/show'
+    assigns[:person] = Person.make.tap { |p| p.perishable_token = '789' }
+    render '/password_resets/show'
   end
 
   it 'should render login form' do
     response.should have_tag('form.login') do
-      with_tag 'form[method=post][action=?]', session_url do
+      with_tag 'form[method=post][action=?]', password_reset_path('789') do
         with_tag 'fieldset' do
-          with_tag 'label[for=login]', "Username:"
-          with_tag 'input[name=login][type=text][title=Your username]'
           with_tag 'label[for=password]', "Password:"
           with_tag 'input[name=password][type=password][title=Your password is case sensitive]'
-          with_tag 'label', "Remember me on this computer"
-          with_tag 'input[name=remember_me][type=checkbox][value=1][checked]'
-          with_tag 'input[type=submit][value=Login]'
-          with_tag 'a[href=?]', password_resets_path, "Help, I lost my password!"
+          with_tag 'label[for=password_confirmation]', "Confirmation:"
+          with_tag 'input[name=password_confirmation][type=password][title=Once more, confirm your password]'
+          with_tag 'input[type=submit][value=Change password]'
         end
       end
     end
   end
 
-  should_have_tag 'form.login input[name=login].auto_focus'
+  should_have_tag 'form.login input[name=password].auto_focus'
   should_have_tag 'form.login input[name=authenticity_token][type=hidden]'
   should_not_have_tag 'p.error'
 end
 
-describe '/sessions/show with error message' do
+describe '/password_resets/show with error message' do
   before do
     controller.allow_forgery_protection = true
-    Authlogic::Session::Base.controller = Authlogic::TestCase::MockController.new
-    assigns[:auth_session] = AuthSession.new
-    assigns[:auth_session].errors.add_to_base "Error message"
-    render '/sessions/show'
+    assigns[:person] = Person.make
+    assigns[:person].update_attributes :password=>'newsecret'
+    render '/password_resets/show'
   end
 
-  should_have_tag 'form.login fieldset div.error', "Error message"
+  should_have_tag 'form.login fieldset div.error', "Password doesn't match confirmation"
 end
+

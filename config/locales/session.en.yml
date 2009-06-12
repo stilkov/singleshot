@@ -1,0 +1,36 @@
+en:
+  sessions:
+    show:
+      submit:
+        button:   "Login"
+        hint:     ""
+      login:
+        label:    "Username:"
+        hint:     "Your username"
+      password:
+        label:    "Password:"
+        hint:     "Your password is case sensitive"
+      remember_me:
+        label:    "Remember me on this computer"
+      recover:    "Help, I lost my password!"
+  password_resets:
+    index:
+      email:
+        label:    "Email:"
+        hint:     "Your email address"
+      submit:
+        button:   "Recover"
+        hint:     ""
+    show:
+      password:
+        label:    "Password:"
+        hint:     "Your password is case sensitive"
+      confirmation:
+        label:    "Confirmation:"
+        hint:     "Once more, confirm your password"
+      submit:
+        button:   "Change password"
+        hint:     ""
+    errors:
+      noemail:    "Please enter your email address"
+      noaccount:  "No account with this email address"

@@ -41,7 +41,7 @@ class Person #:nodoc:
     end
 
     def me
-      named(ENV['USER'])
+      named('john')
     end
   end
 end

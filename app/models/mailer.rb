@@ -19,6 +19,15 @@ class Mailer < ActionMailer::Base
   helper :application
   layout 'mailer'
 
+  def password_reset(person)
+    subject       "Instructions for resetting your password"
+    from          "Notifications <notifications@#{default_url_options[:host]}>"
+    reply_to      "Do not reply <noreply@#{default_url_options[:host]}>"
+    recipients    person.email
+    body          :link=>password_reset_url(person.perishable_token)
+
+  end
+
   def notification(notification, recipient)
     subject      notification.subject
     from         "Notifications <notifications@#{default_url_options[:host]}>"

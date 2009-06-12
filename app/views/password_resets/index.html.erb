@@ -1,0 +1,10 @@
+<% form_tag password_resets_path, :class=>'login' do %>
+  <fieldset>
+    <%= content_tag 'div', @error, :class=>'error' if @error %>
+    <dl>
+      <dt><%= label_tag 'email', t('.email.label') %></dt>
+      <dd><%= text_field_tag 'email', nil, :size=>40, :title=>t('.email.hint'), :class=>'auto_focus' %></dd>
+      <dt></dt><dd><%= submit_tag t('.submit.button'), :title=>t('.submit.hint') %></dd>
+    </dl> 
+  </fieldset>
+<% end %>

@@ -18,13 +18,9 @@ class ApplicationController < ActionController::Base #:nodoc:
 
   helper :all # include all helpers, all the time
 
-  helper_method :current_session, :authenticated
-
-  class UserSession <  Authlogic::Session::Base
-    authenticate_with Person
-    params_key :access_key
-    single_access_allowed_request_types [Mime::ATOM, Mime::ICS]
-  end
+  # Returns currently authenticated person.
+  attr_reader :authenticated
+  helper_method :authenticated
 
 private
 
@@ -38,25 +34,14 @@ private
   # See ActionController::RequestForgeryProtection for details
   protect_from_forgery
 
-  def current_session
-    return @current_session if defined?(@current_session)
-    @current_session = UserSession.find
-  end
-
-  # Returns currently authenticated user.
-  def authenticated
-    return @authenticated if defined?(@authenticated)
-    @authenticated = current_session && current_session.person
-  end
-
   before_filter :authenticate
   # Authentication filter enabled by default since most resources are guarded.
   def authenticate
-    # TODO: HTTP Basic might need this
-    # params[request_forgery_protection_token] = form_authenticity_token
-    if authenticated
-      I18n.locale = authenticated.locale.to_sym if authenticated.locale
-      Time.zone = authenticated.timezone
+    auth_session = AuthSession.find
+    @authenticated = auth_session && auth_session.person
+    if @authenticated
+      I18n.locale = @authenticated.locale.to_sym if @authenticated.locale
+      Time.zone = @authenticated.timezone
     elsif request.format.html?
       session[:return_url] = request.url
       redirect_to session_url

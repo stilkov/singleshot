@@ -32,6 +32,8 @@ end
 describe AuthenticationTestController do
   before { @person = Person.make(:email=>'john@example.com', :locale=>'tlh', :timezone=>-11) }
 
+  should_filter_params :password, :password_confirmation
+
   describe 'unauthenticated request' do
     describe '(HTML)' do
       before { get :index }

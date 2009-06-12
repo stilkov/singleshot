@@ -28,6 +28,7 @@
 					</ol>
         </li>
       </ol>
+      <%= [:error, :notice, :success].select { |k| flash[k] }.map { |k| content_tag('div', h(flash[k]), :class=>k) }.join %>
     </div>
     <div id='container'>
       <%= yield(:content) or yield %>

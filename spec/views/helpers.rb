@@ -15,6 +15,7 @@
 
 
 require File.dirname(__FILE__) + '/../spec_helper'
+require 'authlogic/test_case'
 
 
 module Spec::Helpers #:nodoc:

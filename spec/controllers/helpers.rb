@@ -30,16 +30,7 @@ module Spec::Helpers #:nodoc:
     #
     # Without arguments, authenticates as 'person'.
     def authenticate(person = Person.named('john'))
-      @controller.instance_eval do
-        previous, @authenticated = @authenticated, person
-        if block_given?
-          begin
-            yield
-          ensure
-            @authenticated = previous
-          end
-        end
-      end
+      session[:person_credentials] = person && person.persistence_token
       self
     end
 

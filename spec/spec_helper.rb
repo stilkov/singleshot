@@ -8,6 +8,7 @@ require File.expand_path(File.dirname(__FILE__) + '/blueprints')
 require 'remarkable'
 require 'remarkable_activerecord'
 require 'remarkable_rails'
+require 'email_spec'
 trap("SIGINT"){ exit! 0 }
 
 
@@ -50,4 +51,9 @@ Spec::Runner.configure do |config|
   # == Notes
   # 
   # For more information take a look at Spec::Runner::Configuration and Spec::Runner
+
+  config.before :each do
+    ActionMailer::Base.deliveries = []
+  end
+  config.include EmailSpec::Matchers
 end

@@ -14,16 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-require File.dirname(__FILE__) + '/../spec_helper'
-
-
-module Spec::Helpers #:nodoc:
-  # These helper methods and matchers are available only when speccing AR models.
-  module Models
-
-  end
-end
-
-Spec::Runner.configure do |config|
-  config.include Spec::Helpers::Models, :type=>:model
+class AuthSession <  Authlogic::Session::Base
+  authenticate_with Person
+  params_key :access_key
+  single_access_allowed_request_types [Mime::ATOM, Mime::ICS]
 end

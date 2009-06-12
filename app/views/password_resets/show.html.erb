@@ -1,0 +1,13 @@
+<% form_for @person, :url=>password_reset_path(:id=>@person.perishable_token), :html=>{ :class=>'login' } do |f| %>
+  <fieldset>
+    <%= f.error_messages :header_message=>false, :message=>false, :class=>'error' %>
+    <dl>
+      <dt><%= label_tag 'password', t('.password.label') %></dt>
+      <dd><%= password_field_tag 'password', nil, :size=>40, :title=>t('.password.hint'), :class=>'auto_focus' %></dd>
+      <dt><%= label_tag 'password_confirmation', t('.confirmation.label') %></dt>
+      <dd><%= password_field_tag 'password_confirmation', nil, :size=>40, :title=>t('.confirmation.hint') %></dd>
+      <dt></dt><dd><%= submit_tag t('.submit.button'), :title=>t('.submit.hint') %></dd>
+    </dl> 
+  </fieldset>
+<% end %>
+ 

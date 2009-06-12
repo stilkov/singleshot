@@ -1,12 +1,14 @@
-<% form_for :session, :url=>session_url, :html=>{ :class=>'login' } do %>
+<% form_for @auth_session, :url=>session_url, :html=>{ :class=>'login' } do |f| %>
   <fieldset>
-    <%= content_tag 'p', flash[:error], :class=>'error' if flash[:error] %>
+    <%= f.error_messages :header_message=>false, :message=>false, :class=>'error' %>
     <dl>
       <dt><%= label_tag 'login', t('.login.label') %></dt>
       <dd><%= text_field_tag 'login', nil, :size=>40, :title=>t('.login.hint'), :class=>'auto_focus' %></dd>
       <dt><%= label_tag 'password', t('.password.label') %></dt>
       <dd><%= password_field_tag 'password', nil, :size=>40, :title=>t('.password.hint') %></dd>
+      <dt></dt><dd><label><%= check_box_tag 'remember_me', 1, true %> <%= t('.remember_me.label') %></label></dd>
       <dt></dt><dd><%= submit_tag t('.submit.button'), :title=>t('.submit.hint') %></dd>
+      <dt></dt><dd><%= link_to t('.recover'), password_resets_path %></dd>
     </dl> 
   </fieldset>
 <% end %>

@@ -25,19 +25,6 @@ en:
         header:    "Time to complete each task (dd:hh)"
         hover:     "{{count}} tasks completed in under {{hours}} hours"
         format:    "%0d:%02d"
-  sessions:
-    errors:
-      nomatch:  "No account with this user name and password."
-    show:
-      submit:
-        button:   "Login"
-        hint:     ""
-      login:
-        label:    "Username:"
-        hint:     "Your username"
-      password:
-        label:    "Password:"
-        hint:     "Your password is case sensitive"
   # Layouts
   layouts:
     application:

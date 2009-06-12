@@ -109,7 +109,7 @@ class Person < ActiveRecord::Base
   end
 
   acts_as_authentic do |config|
-    # Configuration comes here.
+    perishable_token_valid_for 1.hour
   end
   
 

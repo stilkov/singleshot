@@ -19,23 +19,21 @@ class SessionsController < ApplicationController #:nodoc:
   skip_before_filter :authenticate
 
   def show
+    @auth_session = AuthSession.new
   end
 
   def create
-    user_session = UserSession.new(params)
-    if user_session.save
-      redirect = session.delete(:return_url) || root_url
-      redirect_to redirect, :status=>:see_other 
+    @auth_session = AuthSession.new(params)
+    if @auth_session.save
+      redirect_to session.delete(:return_url) || root_url
     else
-      flash[:error] = t('sessions.errors.nomatch') unless params[:login].blank?
-      redirect_to session_url, :status=>:see_other
+      render :action=>:show
     end
   end
 
   def destroy
-    @authenticated = nil
-    current_session.destroy
-    redirect_to root_url, :status=>:see_other
+    AuthSession.find.destroy
+    redirect_to root_url
   end
 
 end
