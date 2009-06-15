@@ -41,6 +41,12 @@ def gem_install(name, options)
 end
 
 
+# Plugins first.
+check "Using Git to update modules (git submodule update)" do
+  sh "git submodule update"
+end
+
+
 # We need to install all dependency Gems for the current environment.
 # Some missing Gems don't allow rake gems:install to run successfully,
 # so we get around it by safe loading environment.rb and running gem
