@@ -43,6 +43,7 @@ end
 
 # Plugins first.
 check "Using Git to update modules (git submodule update)" do
+  sh "git submodule init"
   sh "git submodule update"
 end
 
