@@ -55,7 +55,8 @@ module Presenter #:nodoc:
         response.template.template_format = format
         response.content_type = request.format.to_s #=> "text/html"
         
-        template = default_template(options.delete(:action) || action_name) rescue nil
+        template_name = default_template_name(options.delete(:action) || action_name)
+        template = self.view_paths.find_template(template_name, format) rescue nil
         if template
           render options.merge(:template=>template)
         elsif object.respond_to?("to_#{format}")
