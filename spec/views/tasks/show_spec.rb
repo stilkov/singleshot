@@ -22,29 +22,32 @@ describe '/tasks/show' do
     template.stub!(:authenticated).and_return Person.observer
     template.stub!(:instance).and_return { Task.find(@task) }
   end
-  subject { render '/tasks/show', :layout=>'single' }
 
+  describe 'common' do
+    before do
+      render '/tasks/show', :layout=>'single'
+    end
 
-  should_have_tag 'title', "Singleshot &mdash; Absence request"
-  should_have_tag 'script[src^=/javascripts/jquery.js]'
-  should_have_tag 'script[src^=/javascripts/singleshot.js]'
-  should_have_tag 'link[href^=/stylesheets/common.css]'
-  should_have_tag 'link[href^=/stylesheets/task.css]'
+    should_have_tag 'title', "Singleshot &mdash; Absence request"
+    should_have_tag 'script[src^=/javascripts/jquery.js]'
+    should_have_tag 'script[src^=/javascripts/singleshot.js]'
+    should_have_tag 'link[href^=/stylesheets/common.css]'
+    should_have_tag 'link[href^=/stylesheets/task.css]'
 
-  should_have_tag 'div#header + div#details'
-  should_have_tag '#header ol.sections li', 3
-  should_have_tag '#header ol.sections li.logo + li.meta + li.actions'
-  should_have_tag '#header ol.sections li.meta span.title', "Absence request"
-  should_not_have_tag '#header ol.sections li.actions form'
-  should_have_tag '#details div.description + hr + ul.meta + ol.activities'
-  should_have_tag '#details div.description', "Employee wants their leave of absence approved"
-  should_have_tag '#details ul.meta li.priority.priority-2', "Normal priority"
-  should_not_have_tag '#details ul.meta li.due_on'
-  should_have_tag '#details ol.activities li span.title + span.published'
-  should_have_tag '#details ol.activities li span.title a.fn.url'
-  should_have_tag '#details ol.activities li', /Creator created this task/
+    should_have_tag 'div#header + div#details'
+    should_have_tag '#header ol.sections li', 3
+    should_have_tag '#header ol.sections li.logo + li.meta + li.actions'
+    should_have_tag '#header ol.sections li.meta span.title', "Absence request"
+    should_not_have_tag '#header ol.sections li.actions form'
+    should_have_tag '#details div.description + hr + ul.meta + ol.activities'
+    should_have_tag '#details div.description', "Employee wants their leave of absence approved"
+    should_have_tag '#details ul.meta li.priority.priority-2', "Normal priority"
+    should_not_have_tag '#details ul.meta li.due_on'
+    should_have_tag '#details ol.activities li span.title + span.published'
+    should_have_tag '#details ol.activities li span.title a.fn.url'
+    should_have_tag '#details ol.activities li', /Creator created this task/
+  end
   
-
   describe 'to owner' do
     before do
       Person.owner.task(@task).update_attributes! :owner=>Person.owner
