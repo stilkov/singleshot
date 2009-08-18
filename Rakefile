@@ -6,7 +6,7 @@ require 'rake/rdoctask'
 
 require 'tasks/rails'
 
-THIS_VERSION = "2009.08.18"
+THIS_VERSION = "2009.08.18.1"
 
 desc "Put together a singleshot war package"
 task :package do
