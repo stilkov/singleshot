@@ -6,7 +6,7 @@ require 'rake/rdoctask'
 
 require 'tasks/rails'
 
-THIS_VERSION = "2009.08.18.3"
+THIS_VERSION = "2009.08.18.4-SNAPSHOT"
 
 #repositories.release_to[:username] ||= "release"
 #repositories.release_to[:url] ||= "sftp://www.intalio.org/var/www-org/public/maven2"
