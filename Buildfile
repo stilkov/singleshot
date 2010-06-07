@@ -6,7 +6,7 @@ require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 
 #require 'tasks/rails'
 
-THIS_VERSION = "20090909-SNAPSHOT"
+THIS_VERSION = "20090909"
 
 repositories.remote << "http://repo1.maven.org/maven2"
 repositories.remote << "http://download.java.net/maven/2"
